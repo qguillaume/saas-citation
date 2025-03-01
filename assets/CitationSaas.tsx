@@ -1,35 +1,66 @@
-// assets/CitationSaas.tsx
-
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
-const CitationSaaS = () => {
-  const [quote, setQuote] = useState('');
-  const [isPremium, setIsPremium] = useState(false);
+interface QuoteResponse {
+    quote: string;
+    isPremium: boolean;
+    isAuthenticated: boolean;
+}
 
-  useEffect(() => {
-    fetch('/api/quote')
-      .then((res) => res.json())
-      .then((data) => setQuote(data.quote));
-  }, []);
+const CitationSaas: React.FC = () => {
+    const [quote, setQuote] = useState<string>('Chargement...');
+    const [isPremium, setIsPremium] = useState<boolean>(false);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  const handleSubscribe = () => {
-    window.location.href = '/stripe/checkout';
-  };
+    useEffect(() => {
+        const fetchQuote = async () => {
+            try {
+                const response = await fetch('/api/quote', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                });
 
-  return (
-    <div className="p-4 flex flex-col items-center">
-      <Card className="max-w-md w-full">
-        <h1 className="text-xl font-bold mb-4">Citation du Jour</h1>
-        <p className="mb-4">{quote || 'Chargement...'}</p>
-        <Button onClick={handleSubscribe} className="w-full">
-          Devenir Premium
-        </Button>
-      </Card>
-    </div>
-  );
+                if (!response.ok) {
+                    throw new Error('Erreur réseau');
+                }
+
+                const data: QuoteResponse = await response.json();
+                setQuote(data.quote);
+                setIsPremium(data.isPremium);
+                setIsAuthenticated(data.isAuthenticated);
+            } catch (error) {
+                console.error('Erreur:', error);
+                setQuote('Erreur lors du chargement');
+            }
+        };
+
+        fetchQuote();
+    }, []);
+
+    return (
+        <div className="container">
+            <h1>Citation du Jour</h1>
+            <p className="quote">{quote}</p>
+            {isAuthenticated ? (
+                isPremium ? (
+                    <p>Vous êtes un utilisateur Premium !</p>
+                ) : (
+                    <button
+                        className="button"
+                        onClick={() => (window.location.href = '/stripe/checkout')}
+                    >
+                        Devenir Premium
+                    </button>
+                )
+            ) : (
+                <p>
+                    <a href="/login">Connectez-vous</a> pour devenir Premium !
+                </p>
+            )}
+        </div>
+    );
 };
 
-export default CitationSaaS;
+export default CitationSaas;

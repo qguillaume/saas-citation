@@ -11,6 +11,10 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\Controller\QuoteController:
+        arguments:
+            $security: '@security.helper'
+    
     # StripeService avec l'argument STRIPE_API_KEY
     App\Service\StripeService:
         arguments:

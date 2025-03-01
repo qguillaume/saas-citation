@@ -1,0 +1,27 @@
+# config/packages/security.yaml
+security:
+    password_hashers:
+        App\Entity\User:
+            algorithm: bcrypt  # ou argon2i/argon2id selon votre préférence
+
+    providers:
+        in_memory:
+            memory:
+                users:
+                    user: { password: 'userpass', roles: ['ROLE_USER'] }
+        # Vous pouvez également ajouter un fournisseur pour votre base de données ici
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            # Authentification via formulaire
+            form_login:
+                login_path: login
+                check_path: login
+            logout:
+                path: logout
+
+    access_control:
+        - { path: ^/admin, roles: ROLE_ADMIN }
