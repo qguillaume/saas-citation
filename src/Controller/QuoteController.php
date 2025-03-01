@@ -35,11 +35,20 @@ class QuoteController extends AbstractController
             'La persévérance est la clé du succès.',
         ];
 
+        $premiumQuotes = [
+            'La réussite appartient à ceux qui se lèvent tôt.',
+            'La connaissance est un trésor, mais la pratique est la clé.',
+            'Pour aller loin, il faut ménager sa monture.',
+        ];
+
         $quote = $quotes[array_rand($quotes)];
+        $premiumQuote = $user && $user->getIsPremium() ? $premiumQuotes[array_rand($premiumQuotes)] : null;
 
         return new JsonResponse([
             'quote' => $quote,
-            'isPremium' => $isPremium
+            'isPremium' => $user ? $user->getIsPremium() : false,
+            'isAuthenticated' => (bool) $user,
+            'premiumQuote' => $premiumQuote,
         ]);
     }
 }
