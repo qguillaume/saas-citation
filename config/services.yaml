@@ -1,0 +1,17 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # Déclare les classes dans src/ comme des services
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # StripeService avec l'argument STRIPE_API_KEY
+    App\Service\StripeService:
+        arguments:
+            $stripeApiKey: '%env(STRIPE_API_KEY)%'
